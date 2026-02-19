@@ -7,9 +7,10 @@ spec:
    - name: myvolumes-container
      image: tomcat:8.5
      volumeMounts:
-      - name: pv
+      - name: storage-drive
         mountPath: "/usr/local/tomcat/logs"
   volumes:
-   - name: pv
+   - name: storage-drive
      persistentVolumeClaim:
        claimName: my-pvc
+
