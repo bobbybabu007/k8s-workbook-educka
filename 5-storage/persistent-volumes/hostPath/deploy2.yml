@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pvc-deployment
+  labels:
+    app: pvc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pvc-app
+  template:
+    metadata:
+      labels:
+        app: pvc-app
+    spec:
+      containers:
+       - name: myvolumes-container
+         image: tomcat:8.5
+         volumeMounts:
+          - name: storage-drive
+            mountPath: "/usr/local/tomcat/logs"
+          containerPort: 8080
+       - name: log-exporter
+         image: nginx:latest
+         volumeMounts:
+          - name: storage-drive
+            mountPath: "/data"
+          containerPort: 80
+      volumes:
+       - name: storage-drive
+         persistentVolumeClaim:
+           claimName: my-pvc
