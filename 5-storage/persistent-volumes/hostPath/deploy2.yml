@@ -20,14 +20,16 @@ spec:
           volumeMounts:
             - name: storage-drive
               mountPath: "/usr/local/tomcat/logs"
-          containerPort: 8080
+          ports:
+            - containerPort: 8080
         - name: log-exporter
           image: nginx:latest
           volumeMounts:
             - name: storage-drive
-             mountPath: "/data"
-          containerPort: 80
+              mountPath: "/data"
+          ports:
+            - containerPort: 80
       volumes:
         - name: storage-drive
           persistentVolumeClaim:
-            claimName: my-pvc
+            claimName: my-pvc          
