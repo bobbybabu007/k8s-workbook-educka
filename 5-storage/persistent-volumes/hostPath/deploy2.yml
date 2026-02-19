@@ -15,19 +15,19 @@ spec:
         app: pvc-app
     spec:
       containers:
-       - name: myvolumes-container
-         image: tomcat:8.5
-         volumeMounts:
-          - name: storage-drive
-            mountPath: "/usr/local/tomcat/logs"
+        - name: myvolumes-container
+          image: tomcat:8.5
+          volumeMounts:
+            - name: storage-drive
+              mountPath: "/usr/local/tomcat/logs"
           containerPort: 8080
-       - name: log-exporter
-         image: nginx:latest
-         volumeMounts:
-          - name: storage-drive
-            mountPath: "/data"
+        - name: log-exporter
+          image: nginx:latest
+          volumeMounts:
+            - name: storage-drive
+             mountPath: "/data"
           containerPort: 80
       volumes:
-       - name: storage-drive
-         persistentVolumeClaim:
-           claimName: my-pvc
+        - name: storage-drive
+          persistentVolumeClaim:
+            claimName: my-pvc
