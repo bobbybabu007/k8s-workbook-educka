@@ -1,0 +1,139 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pragra-prod
+spec: {}
+---
+apiVersion: v1
+data:
+  index.html: "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n<meta charset=\"UTF-8\">\r\n<title>ShopClone
+    - PROD</title>\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n\r\n<style>\r\nbody
+    { margin:0; font-family:Arial; background:#eaeded; }\r\n.header { background:#131921;
+    color:white; display:flex; align-items:center; padding:10px 20px; gap:20px; }\r\n.logo
+    { font-size:24px; font-weight:bold; }\r\n.search-bar { flex:1; display:flex; }\r\n.search-bar
+    input { width:100%; padding:8px; border:none; }\r\n.search-bar button { background:#febd69;
+    border:none; padding:8px 16px; cursor:pointer; }\r\n.nav-links { display:flex;
+    gap:15px; font-size:14px; }\r\n.categories { background:#232f3e; color:white;
+    padding:8px 20px; display:flex; gap:20px; font-size:14px; }\r\n.products { padding:20px;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px;
+    }\r\n.product-card { background:white; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,.1);
+    border-radius:4px; }\r\n.product-image { background:#f3f3f3; height:150px; margin-bottom:10px;
+    }\r\n.footer { background:#131921; color:white; text-align:center; padding:20px;
+    margin-top:40px; }\r\n.dev-banner { background:red; color:white; text-align:center;
+    padding:5px; font-weight:bold; }\r\n</style>\r\n</head>\r\n<body>\r\n\r\n<script>\r\nconst
+    ENV = \"production\";\r\nconsole.log(\"Running in PROD mode\");\r\n\r\n// Dev
+    Banner\r\nconst banner = document.createElement(\"div\");\r\nbanner.className
+    = \"dev-banner\";\r\nbanner.textContent = \"PRODUCTION MODE\";\r\ndocument.body.appendChild(banner);\r\n\r\nfunction
+    createHeader() {\r\n    console.log(\"Creating header...\");\r\n    const header
+    = document.createElement(\"div\");\r\n    header.className = \"header\";\r\n\r\n
+    \   header.innerHTML = `\r\n        <div class=\"logo\">ShopClone</div>\r\n        <div
+    class=\"search-bar\">\r\n            <input placeholder=\"Search products...\"
+    />\r\n            <button>Search</button>\r\n        </div>\r\n        <div class=\"nav-links\">\r\n
+    \           <div>Account</div>\r\n            <div>Orders</div>\r\n            <div>Cart</div>\r\n
+    \       </div>\r\n    `;\r\n    document.body.appendChild(header);\r\n}\r\n\r\nfunction
+    createCategories() {\r\n    console.log(\"Loading categories...\");\r\n    const
+    categories = document.createElement(\"div\");\r\n    categories.className = \"categories\";\r\n
+    \   [\"Today's Deals\",\"Electronics\",\"Home\",\"Fashion\",\"Toys\"]\r\n        .forEach(cat=>{\r\n
+    \           const div=document.createElement(\"div\");\r\n            div.textContent=cat;\r\n
+    \           categories.appendChild(div);\r\n        });\r\n    document.body.appendChild(categories);\r\n}\r\n\r\nfunction
+    createProducts() {\r\n    console.log(\"Generating mock products...\");\r\n    const
+    products = document.createElement(\"div\");\r\n    products.className = \"products\";\r\n\r\n
+    \   for (let i=1;i<=8;i++){\r\n        const card=document.createElement(\"div\");\r\n
+    \       card.className=\"product-card\";\r\n        card.innerHTML=`\r\n            <div
+    class=\"product-image\"></div>\r\n            <div>Dev Product ${i}</div>\r\n
+    \           <div>$${(Math.random()*100).toFixed(2)}</div>\r\n        `;\r\n        products.appendChild(card);\r\n
+    \   }\r\n    document.body.appendChild(products);\r\n}\r\n\r\nfunction createFooter(){\r\n
+    \   const footer=document.createElement(\"div\");\r\n    footer.className=\"footer\";\r\n
+    \   footer.textContent=\"© 2026 ShopClone - PROD\";\r\n    document.body.appendChild(footer);\r\n}\r\n\r\ncreateHeader();\r\ncreateCategories();\r\ncreateProducts();\r\ncreateFooter();\r\n\r\n</script>\r\n</body>\r\n</html>"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: prod-html
+  namespace: pragra-prod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pragra-app
+  name: pragra-app
+  namespace: pragra-prod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pragra-app
+  template:
+    metadata:
+      labels:
+        app: pragra-app
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+               name: db-creds
+               key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+               name: db-creds
+               key: password
+        ports:
+        - containerPort: 80        
+        volumeMounts:
+        - name: html-from-cm
+          mountPath: /usr/share/nginx/html/
+          readOnly: true
+        - name: storage
+          mountPath: /usr/share/nginx/html/data       
+      volumes:
+      - name: html-from-cm
+        configMap:
+          name: prod-html 
+      - name: storage
+        persistentVolumeClaim:
+          claimName: prod-pvc       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: pragra-app
+  name: pragra-app
+  namespace: pragra-prod
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: pragra-app
+  type: NodePort
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prod-pvc
+  namespace: pragra-prod
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+data:
+  password: <>
+  username: <>
+kind: Secret
+metadata:
+  name: db-creds
+  namespace: pragra-prod
+

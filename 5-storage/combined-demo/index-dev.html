@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ShopClone - DEV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family:Arial; background:#eaeded; }
+.header { background:#131921; color:white; display:flex; align-items:center; padding:10px 20px; gap:20px; }
+.logo { font-size:24px; font-weight:bold; }
+.search-bar { flex:1; display:flex; }
+.search-bar input { width:100%; padding:8px; border:none; }
+.search-bar button { background:#febd69; border:none; padding:8px 16px; cursor:pointer; }
+.nav-links { display:flex; gap:15px; font-size:14px; }
+.categories { background:#232f3e; color:white; padding:8px 20px; display:flex; gap:20px; font-size:14px; }
+.products { padding:20px; display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:20px; }
+.product-card { background:white; padding:15px; box-shadow:0 2px 5px rgba(0,0,0,.1); border-radius:4px; }
+.product-image { background:#f3f3f3; height:150px; margin-bottom:10px; }
+.footer { background:#131921; color:white; text-align:center; padding:20px; margin-top:40px; }
+.dev-banner { background:red; color:white; text-align:center; padding:5px; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<script>
+const ENV = "development";
+console.log("Running in DEV mode");
+
+// Dev Banner
+const banner = document.createElement("div");
+banner.className = "dev-banner";
+banner.textContent = "DEVELOPMENT MODE";
+document.body.appendChild(banner);
+
+function createHeader() {
+    console.log("Creating header...");
+    const header = document.createElement("div");
+    header.className = "header";
+
+    header.innerHTML = `
+        <div class="logo">ShopClone</div>
+        <div class="search-bar">
+            <input placeholder="Search products..." />
+            <button>Search</button>
+        </div>
+        <div class="nav-links">
+            <div>Account</div>
+            <div>Orders</div>
+            <div>Cart</div>
+        </div>
+    `;
+    document.body.appendChild(header);
+}
+
+function createCategories() {
+    console.log("Loading categories...");
+    const categories = document.createElement("div");
+    categories.className = "categories";
+    ["Today's Deals","Electronics","Home","Fashion","Toys"]
+        .forEach(cat=>{
+            const div=document.createElement("div");
+            div.textContent=cat;
+            categories.appendChild(div);
+        });
+    document.body.appendChild(categories);
+}
+
+function createProducts() {
+    console.log("Generating mock products...");
+    const products = document.createElement("div");
+    products.className = "products";
+
+    for (let i=1;i<=8;i++){
+        const card=document.createElement("div");
+        card.className="product-card";
+        card.innerHTML=`
+            <div class="product-image"></div>
+            <div>Dev Product ${i}</div>
+            <div>$${(Math.random()*100).toFixed(2)}</div>
+        `;
+        products.appendChild(card);
+    }
+    document.body.appendChild(products);
+}
+
+function createFooter(){
+    const footer=document.createElement("div");
+    footer.className="footer";
+    footer.textContent="© 2026 ShopClone - DEV";
+    document.body.appendChild(footer);
+}
+
+createHeader();
+createCategories();
+createProducts();
+createFooter();
+
+</script>
+</body>
+</html>
